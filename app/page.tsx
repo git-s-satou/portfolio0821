@@ -35,7 +35,7 @@ const CheckCircleIcon = () => (
 
 export default function VideoProductionLP() {
   const [activeTab, setActiveTab] = useState('2d')
-  const canvasRef = useRef(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null) // 型を明示
   const [isVisible, setIsVisible] = useState({
     hero: false,
     services: false,
@@ -50,10 +50,12 @@ export default function VideoProductionLP() {
     if (!canvas) return
 
     const ctx = canvas.getContext('2d')
+    if (!ctx) return // ctxがnullの場合の安全チェック
+
     canvas.width = window.innerWidth
     canvas.height = window.innerHeight
 
-    let animationId
+    let animationId: number
     let rotation = 0
 
     const animate = () => {
@@ -69,7 +71,7 @@ export default function VideoProductionLP() {
       animationId = requestAnimationFrame(animate)
     }
 
-    const drawCube = (ctx, x, y, rotation, size) => {
+    const drawCube = (ctx: CanvasRenderingContext2D, x: number, y: number, rotation: number, size: number) => {
       ctx.save()
       ctx.translate(x, y)
       
@@ -152,8 +154,10 @@ export default function VideoProductionLP() {
     animate()
 
     const handleResize = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
+      if (canvas) {
+        canvas.width = window.innerWidth
+        canvas.height = window.innerHeight
+      }
     }
 
     window.addEventListener('resize', handleResize)

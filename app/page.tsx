@@ -43,10 +43,11 @@ export default function VideoProductionLP() {
     stats: false,
     contact: false
   })
-  const [fbxModel, setFbxModel] = useState(null)
+  const [fbxModel] = useState(null) // setFbxModelを削除（未使用）
   const [showContactForm, setShowContactForm] = useState(false)
 
-  // FBXモデルの読み込み試行
+  // FBXモデルの読み込み試行（コメントアウト：未実装のため）
+  /*
   useEffect(() => {
     const checkForFbxModel = async () => {
       try {
@@ -54,12 +55,13 @@ export default function VideoProductionLP() {
         // 実際の実装では、ユーザーがアップロードしたFBXファイルのパスを指定
         // const modelData = await window.fs.readFile('model.fbx')
         // setFbxModel(modelData)
-      } catch (error) {
+      } catch {
         console.log('No FBX model found, using default geometric shapes')
       }
     }
     checkForFbxModel()
   }, [])
+  */
 
   // 3D幾何学的オブジェクトのアニメーション
   useEffect(() => {
@@ -81,27 +83,20 @@ export default function VideoProductionLP() {
       const centerX = canvas.width / 2
       const centerY = canvas.height / 2
       
-      if (fbxModel) {
-        // FBXモデルが利用可能な場合は、そのモデルを表示
-        // 実際の実装ではThree.jsなどを使用してFBXモデルを描画
-        drawFbxModel(ctx, centerX, centerY, rotation)
-      } else {
-        // デフォルトの幾何学的形状を表示
-        drawGeometricShapes(ctx, centerX, centerY, rotation)
-      }
+      // FBXモデルは未実装なので、常にデフォルトの幾何学的形状を描画
+      drawGeometricShapes(ctx, centerX, centerY, rotation)
       
       rotation += 0.008
       animationId = requestAnimationFrame(animate)
     }
 
+    /*
     const drawFbxModel = (ctx: CanvasRenderingContext2D, x: number, y: number, rotation: number) => {
       // FBXモデル表示のプレースホルダー
-      // 実際の実装では Three.js や他の3Dライブラリを使用
       ctx.save()
       ctx.translate(x, y)
       ctx.rotate(rotation)
       
-      // シンプルなプレースホルダー表示
       ctx.fillStyle = 'rgba(59, 130, 246, 0.7)'
       ctx.fillRect(-150, -150, 300, 300)
       ctx.fillStyle = 'rgba(255, 255, 255, 0.9)'
@@ -111,6 +106,7 @@ export default function VideoProductionLP() {
       
       ctx.restore()
     }
+    */
 
     const drawGeometricShapes = (ctx: CanvasRenderingContext2D, x: number, y: number, rotation: number) => {
       ctx.save()
@@ -123,11 +119,7 @@ export default function VideoProductionLP() {
     }
 
     const drawGenerativeArt = (ctx: CanvasRenderingContext2D, time: number) => {
-      const width = canvas.width
-      const height = canvas.height
-      
-      // パラメトリック曲線による流動的なパターン
-      ctx.save()
+      // widthとheightは直接canvasから取得（未使用変数の警告回避）
       
       // 複数のレイヤーでジェネラティブパターンを描画
       for (let layer = 0; layer < 5; layer++) {
@@ -149,26 +141,24 @@ export default function VideoProductionLP() {
         ctx.lineWidth = 1.5 - layer * 0.15
         
         // フローフィールドパターン
-        drawFlowField(ctx, layerTime, layer, width, height)
+        drawFlowField(ctx, layerTime, layer)
         
         // 波紋パターン
-        drawRipples(ctx, layerTime, layer, width, height)
+        drawRipples(ctx, layerTime, layer)
         
         // パーティクルシステム風パターン
-        drawParticleSystem(ctx, layerTime, layer, width, height)
+        drawParticleSystem(ctx, layerTime, layer)
         
         ctx.restore()
       }
-      
-      ctx.restore()
     }
 
-    const drawFlowField = (ctx: CanvasRenderingContext2D, time: number, layer: number, width: number, height: number) => {
+    const drawFlowField = (ctx: CanvasRenderingContext2D, time: number, layer: number) => {
       const gridSize = 80 + layer * 20
       const flowStrength = 100 + layer * 30
       
-      for (let x = -width/2; x < width/2; x += gridSize) {
-        for (let y = -height/2; y < height/2; y += gridSize) {
+      for (let x = -canvas.width/2; x < canvas.width/2; x += gridSize) {
+        for (let y = -canvas.height/2; y < canvas.height/2; y += gridSize) {
           const angle = Math.sin(x * 0.01 + time) + Math.cos(y * 0.01 + time * 0.7) + layer * 0.5
           const length = flowStrength
           
@@ -192,7 +182,7 @@ export default function VideoProductionLP() {
       }
     }
 
-    const drawRipples = (ctx: CanvasRenderingContext2D, time: number, layer: number, width: number, height: number) => {
+    const drawRipples = (ctx: CanvasRenderingContext2D, time: number, layer: number) => {
       const rippleCount = 6 + layer * 2
       const maxRadius = 300 + layer * 50
       
@@ -201,8 +191,8 @@ export default function VideoProductionLP() {
         const radius = (rippleTime % (maxRadius * 0.02)) * 50
         
         if (radius < maxRadius) {
-          const centerX = Math.sin(i * 2.5 + time * 0.3) * (width * 0.2)
-          const centerY = Math.cos(i * 1.8 + time * 0.4) * (height * 0.2)
+          const centerX = Math.sin(i * 2.5 + time * 0.3) * (canvas.width * 0.2)
+          const centerY = Math.cos(i * 1.8 + time * 0.4) * (canvas.height * 0.2)
           
           ctx.beginPath()
           ctx.arc(centerX, centerY, radius, 0, Math.PI * 2)
@@ -218,7 +208,7 @@ export default function VideoProductionLP() {
       }
     }
 
-    const drawParticleSystem = (ctx: CanvasRenderingContext2D, time: number, layer: number, width: number, height: number) => {
+    const drawParticleSystem = (ctx: CanvasRenderingContext2D, time: number, layer: number) => {
       const particleCount = 20 + layer * 10
       const connectionDistance = 150 + layer * 30
       
@@ -274,7 +264,7 @@ export default function VideoProductionLP() {
       cancelAnimationFrame(animationId)
       window.removeEventListener('resize', handleResize)
     }
-  }, [fbxModel])
+  }, [])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -631,7 +621,7 @@ export default function VideoProductionLP() {
           <div className="max-w-4xl mx-auto">
             <div className={`text-center mb-16 fade-in-up ${isVisible.contact ? 'visible' : ''}`}>
               <h3 className="text-4xl lg:text-6xl font-black text-slate-800 mb-8 tracking-tight">
-                Let's Create<br />Something Amazing
+                Let&apos;s Create<br />Something Amazing
               </h3>
               <p className={`text-xl text-slate-600 mb-12 font-light leading-relaxed fade-in-up stagger-1 ${isVisible.contact ? 'visible' : ''}`}>
                 あなたのプロジェクトを次のレベルへ。<br />
@@ -790,7 +780,7 @@ export default function VideoProductionLP() {
                   />
                   <label htmlFor="privacy" className="text-sm text-slate-600 leading-relaxed">
                     <span className="text-red-500">*</span>
-                    プライバシーポリシーに同意します。お預かりした個人情報は、お問い合わせへの回答および弊社サービスのご案内にのみ使用いたします。
+                    プライバシーポリシーに同意します。お預かりした個人情報は、お問い合わせへの回答および弊社サービスの案内にのみ使用いたします。
                   </label>
                 </div>
                 
